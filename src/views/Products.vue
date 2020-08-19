@@ -7,14 +7,20 @@
         <div v-if="loading">
             <h2>Loading products...</h2>
         </div>
-        <product-list v-else :products="products" :page-size="5"></product-list>
+        <product-list v-else :products="products" :page-size="5">   
+            <template v-slot="slotProps">
+              <span class="name">{{ slotProps.product.name | uppercase }}</span>
+              <span class="description">{{ slotProps.product.description | capitalize }}</span>
+              <span class="price">{{ slotProps.product.price | currency('$', 2, { symbolOnLeft: false }) }}</span>
+            </template>       
+        </product-list>
         </section>
     </div>
 </template>
 
 <script>
 import ProductList from '@/components/ProductList.vue';
-import ProductService from '@/services/ProductService.js';
+import { mapState, mapActions } from 'vuex'
 
 export default {
   name: 'app',
@@ -23,21 +29,18 @@ export default {
   },
   data() {
     return {
-      products: [],
-      error: null,
-      loading: false
+      error: null,     
     }
   },
-  created () {
-    this.loading = true;
-    ProductService.getProducts()
-      .then(response => {
-        this.products = response.data;
-      })
-      .catch(error => {
-        this.error = error;
-      })
-      .finally(() => this.loading = false);
+  computed: {
+    ...mapState(['products']), // map `this.products` to `this.$store.state.products`
+    ...mapState({loading:'isLoading'}) // map `this.loading` to `this.$store.state.isLoading`
+  },
+  methods: {
+    ...mapActions(['fetchProducts']) // map `this.fetchProducts()` to `this.$store.dispatch('fetchProducts')`
+  },
+  created () {    
+      this.fetchProducts();
   },
 }
 </script>

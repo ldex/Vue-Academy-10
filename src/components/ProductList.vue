@@ -13,18 +13,21 @@
                 :title="JSON.stringify(product)"
                 @click="onSelect(product)"
                 :class='{ discontinued: product.discontinued, selected: selectedProduct === product }'>
-                <span class="name">{{ product.name }}</span>
-                <span class="description">{{ product.description }}</span>
-                <span class="price">{{ product.price }}</span>
-            </li>
+                <slot :product="product">
+                  {{ product.name }}
+                </slot>
+             </li>
         </ul>
-        <button @click="prevPage" :disabled="pageNumber===1">
+        <div class="right">
+          <router-link to="/product/insert">Create new product</router-link>
+        </div>
+        <v-btn @click="prevPage" :disabled="pageNumber===1">
           &lt; Previous
-        </button>
+        </v-btn>
         Page {{ pageNumber }}
-        <button @click="nextPage" :disabled="pageNumber >= pageCount">
+        <v-btn @click="nextPage" :disabled="pageNumber >= pageCount">
           Next &gt;
-        </button>
+        </v-btn>
       
     </div>
 </template>
@@ -76,6 +79,7 @@
                 sortName: 'modifiedDate',
                 sortDir: 'desc',
                 pageNumber: 1,
+                componentName: 'Product List',
             }
         },
         watch: {
@@ -99,7 +103,7 @@
             //if s == current sort, reverse order
             if(s === this.sortName) {
               this.sortDir = this.sortDir==='asc'?'desc':'asc';
-            }
+            }            
             this.sortName = s;
           },
           nextPage() {
